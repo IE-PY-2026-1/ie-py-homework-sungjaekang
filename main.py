@@ -1,176 +1,170 @@
-# 파일이름 : 60232179 강성재 2차과제
+# 파일이름 : 60232179 강성재 4차과제
 # 작 성 자 : 60232179 강성재
 
-# 투자자의 이름, 목표 수익률을 입력
-user_name = input("투자자의 이름을 입력하세요: ")
-goal_profit = float(input("목표 수익률을 입력하세요: "))
-# 총 투자금액 변수 설정
-total_investment = 0
-# 종목과 매수 단가 빈 리스트 생성
-stock_list = []
-price_list = []
-# 종목과 매수단가 입력
-for i in range(3) :
-    print()
-    print(f"--- {i+1}번째 종목 등록 ---")
-    s_name = input("종목명: ")
-    s_price = int(input("매수 단가: "))
-    if s_price <= 0:
-        print("오류!: 가격은 0보다 커야 합니다 이 종목은 목록에서 제외됩니다.")
-        continue
-    stock_list.append(s_name)
-    price_list.append(s_price)
-
-# 종목개수, 평균수익률
-stock_count = len(stock_list)
-average_price = sum(price_list) / stock_count
-
-# 현재 시세와 현재 시세 대비 수익률 (현재 시세는 실제로 반영할려면 API를 사용해야해서 임의로 40000원이라고 설정)
-current_price = 40000
-current_profit = ((current_price - average_price ) / average_price)
-
-#총 투자금액
-total_investment += s_price
-if total_investment > 0 :
-    print()
-    print("성공적으로 포트폴리오가 구성되었습니다!")
-
-#투자 분석결과 
-print(f'--- {user_name}님의 투자 분석 결과 ---')
-
-if current_profit >= goal_profit :
-    if current_profit >= 50.0 :
-        status = '수익률 50% 달성 오늘 저녁은 먹고싶은거 드세요!'
-    else :
-        status = '목표 달성 완료'
-elif current_profit > 0 and current_profit < goal_profit :
-    status = '아직 수익 중이나 목표 수익까지는 미달입니다'
-else :
-    status = '손실중입니다. 대책을 강구하세요'
-
-# 포매팅 출력 결과
-print(f'분석된 종목 수 : {stock_count}개 ') 
-print(f'보유 종목 리스트 : {stock_list}')
-print(f'평균 매수 단가 : {average_price}원')
-print(f'현재 수익률 : {current_profit}%')
-print(f'투자 상태 : {status}')
-print('=' * 40)
-
-# 파일이름 : 60232179 강성재 3차과제
-# 작 성 자 : 60232179 강성재
-
-#사용자 이름 , 목표수익률, 손절선, 종목, 가격, 총투자금액 설정
-user_name = ""
-goal_profit = 0.0
-stop_loss_limit = 0.0 
-stock_list = []
-price_list = []
-total_investment = 0
-
-# 함수 정의 및 분리
-
+#사용자 정보 및 종목 데이터를 입력받아 이중 리스트로 저장하는 함수 생성
 def input_portfolio() :
-    #전역 변수들 값 변경하기 위해 global 사용
-    global user_name, goal_profit, stop_loss_limit, stock_list, price_list, total_investment
 
-    print('--포트폴리오 및 리스크 설정--')
-    user_name = input('투자자의 이름을 입력하세요: ')
-    goal_profit = float(input('목표 수익률(%)을 입력하세요'))
-    #최대 손실율(stop loss)입력받기
-    stop_loss_limit = float(input('감당할 수 있는 최대 손실률(%)을 입력하세요'))
+    print('='*15 + '포트폴리오 및 리스크 설정' + '='*15)
+
+    user_name = input('투자자의 이름을 입력하세요: ').strip()
+    if not user_name :
+
+        user_name = '무명 투자자'
     
-    # 입력 데이터 초기화
-    stock_list = []
-    price_list = []
-    total_investment = 0
+    #목표 수익률 입력 (예외처리 활용)
+    while True :
+
+        try:
+            goal_profit = float(input('목표 수익률(%)을 입력하세요: '))
+            break
+        except ValueError :
+            print('오류! 숫자로만 입력해 주세요.')
     
-    # 반복입력 받기
+    while True :
+        try:
+            stop_loss_limit = float(input('감당할 수 있는 최대 손절률(%)을 입력하세요: '))
+            break
+        except ValueError :
+            print('오류! 숫자로만 입력해 주세요.')
+    #이중리스트로 종목명, 매수단가 구성
+    portfolio_data = []
+
     for i in range(3) :
-        print(f'--- {i+1}번째 종목 등록 ---')
-        s_name = input('종목명: ')
-        s_price = int(input('매수 단가: '))
-
-        if s_price <= 0 :
-            print('오류! 가격은 0보다 커야합니다. 이 종목은 목록에서 제외됩니다.')
+        print(f'---{i+1}번째 종목 등록 ---')
+        s_name = input('종목명: ').strip()
+        if not s_name :
+            print('종목명이 비어있어 스킵합니다.')
             continue
-        stock_list.append(s_name)
-        price_list.append(s_price)
-        total_investment += s_price # 총 투자금액 누적
 
-    if len(stock_list) > 0 :
+        while True :
+            try:
+                s_price = int(input('매수 단가(원): '))
+                break
+            except ValueError :
+                print('오류! 숫자로만 입력해 주세요.')
+        if s_price <= 0:
+            print('오류! 가격보다 0보다 커야 합니다. 이 종목은 목록에서 제외됩니다.')
+            continue
+            
+        #새로운 종목데이터를 이중리스트에 추가
+        portfolio_data.append([s_name, s_price])
+
+    if len(portfolio_data) > 0:
         print('성공적으로 포트폴리오와 스마트 손절선이 설정되었습니다!')
+    
+    return user_name, goal_profit, stop_loss_limit, portfolio_data
 
-#매개변수를 전달받는 함수
-def analyze_investment(p_list, goal, loss_limit) :
-    # 매수 단가 리스트, 목표수익률, 손절선을 받아서 투자현황및 위험을 연산하는 함수
-    stock_count = len(p_list)
+#이중 리스트를 전달받아서 투자 현황을 연산하고 위험을 분석하는 함수 생성
+def analyze_investment(portfolio_data, goal, loss_limit):
+    stock_count = len(portfolio_data)
 
     if stock_count == 0:
         return 0, 0.0, 0.0, '등록된 종목이 없습니다.', False
+
+    total_price = 0
+    for stock in portfolio_data:
+        total_price += stock[1]
     
-    average_price = sum(p_list) / stock_count
-    current_price = 40000 #임의로 시세 설정 40000원
+    average_price = total_price / stock_count
+    current_price = 40000 #임의로 시세 설정
 
-    # 현재 시세 대비 수익률 계산
-
+    #현재 시세 대비 수익률 계산
     current_profit = ((current_price - average_price) / average_price) * 100
     current_profit = round(current_profit, 2)
 
-    # 스마트 손절선 및 투자 상태 등급 판정 (lost_limit이 10.0, 수익률이 -10.0% 이하일 때 위험한 상태로 판단)
-
+    #스마트 손절선 및 투자 상태 판정
     is_danger = False
 
     if current_profit <= -(loss_limit) :
         status = '위험! 설정하신 최대 손절선을 이탈했습니다! 즉시 매도를 검토하세요.'
         is_danger = True
+
     elif current_profit >= goal :
         if current_profit >= 50.0 :
-            status = '수익률 50% 달성! 축하드립니다!'
+            status = '대박! 수익율 50% 달성! 오늘 저녁은 맛있는 거 드세요!'
         else :
-            status = '목표 달성! 익절을 고려해보세요.'
+            status = '목표 달성! 익절을 고려해 보세요.'
     elif 0 < current_profit < goal :
-        status = '아직 수익중이나 목표 수익까지는 미달입니다.'
+        status = '아직 수익 중이나 목표 수익까지는 미달입니다.'
     else :
-        status = '손실 중입니다. 추가 하락 시 손절선을 주의하세요.'
-
-    #결과를 return 을 통해서 반환
+        status = '손실 중입니다. 추가 하락 시 손절선에 주의하세요.'
+    
     return stock_count, average_price, current_profit, status, is_danger
 
-# 무한루프 시스템
-while True :
-    input_portfolio() 
 
-    if len(stock_list) == 0 :
-        print('등록된 종목이 없어 포트폴리오를 다시 설정합니다.')
-        continue 
+#open() 함수를 사용하여 투자 데이터를 텍스트 파일로 저장하는 함수 생성
+def save_to_file(filename, name, portfolio, cur_profit, status):
 
-    #전역 변수를 매개변수로 전달, 결과를 return 받아서 지역변수에 저장
-    
-    s_count, avg_price, cur_profit, status_msg, danger_flag = analyze_investment(price_list, goal_profit, stop_loss_limit)
 
-    #투자 분석 결과 
+    try:
 
-    print('-'*40)
-    print(f'--- {user_name}님의 투자 분석 결과 ---')
-    print(f'분석된 종목 수 : {s_count}개')
-    print(f'보유 종목 리스트 : {stock_list}')
-    print(f'현재 수익률 : {cur_profit}% (설정한 손절선: -{stop_loss_limit}%')
-    print(f'투자 상태 : {status_msg}')
-    print('-'*40)
+        with open(filename, 'w', encoding='utf-8') as f :
+            f.write(f'=== {name}님의 투자 포트폴리오 보고서 ===')
+            f.write(f'현재 수익률 : {cur_profit}')
+            f.write(f'투자 상태 : {status}')
+            f.write('-' * 40)
+            f.write('[보유 종목 상세 리스트]')
 
-    #손절선 이탈 시 break로 무한루프 종료
+            #파일 작성에 이중 리스트 순회 활용
 
-    if danger_flag :
-        print('===최대 손실 한도를 초과하여 스탑로스가 발동되었습니다===')
-        print('자산 보호를 위해 프로그램을 강제로 안전하게 종료합니다.')
-        print('=====================================================')
-        break
-    else :
-        # 손절선에 걸리지 않았으면 계속 시뮬레이션을 돌릴지 사용자에게 확인
-        retry = input('다시 포트폴리오를 구성하시겠습니까? (y/n): ')
-        if retry.lower() != 'y' :
-            print('프로그램을 정상 종료합니다 성투하세요!')
+            for stock in portfolio :
+
+                f.write(f'종목명 : {stock[0]} 매수단가 : {stock[1]:,}원')
+        print(f'투자 분석 결과가 {filename} 파일로 성공적으로 저장되었습니다.')
+    except Exception as e :
+        print(f'파일 저장 중 오류가 발생했습니다: {e}')
+
+#메인 프로그램 실행부
+if __name__ == '__main__':
+
+
+    while True :
+
+        #포트폴리오 입력 받기
+        user_name, goal_profit, stop_loss_limit, portfolio_list = input_portfolio()
+
+        if len(portfolio_list) == 0 :
+            print('등록된 종목이 없어 포트폴리오를 다시 설정합니다.')
+            continue
+
+        #투자 현황 분석
+        s_count, avg_price, cur_profit, status_msg, danger_flag = analyze_investment(portfolio_list, goal_profit, stop_loss_limit)
+
+        #투자 분석 결과 출력
+        print('='*45)
+        print(f'{user_name}님의 투자 포트폴리오 분석 결과')
+        print('='*45)
+        print(f'분석된 보유 종목 수 : {s_count}개')
+
+        #이중 순회를 활용해서 반복출력
+
+        print(f'보유 종목 상세 내역: ')
+        for i, stock in enumerate(portfolio_list):
+            print(f' {i+1}. 종목: {stock[0]:<10} 매수단가: {stock[1]:,}원')
+        print(f'평균 매수 단가 : {int(avg_price):,}원')
+        print(f'현재 설정 수익률: {cur_profit}% (목표: {goal_profit}%, 손절선: {stop_loss_limit}%)')
+        print(f'현재 리스크 상태: {status_msg}')
+        print('='*45)
+
+        #프로그램 종료 혹은 분석 완료시에 자동저장
+
+        save_to_file('portfolio_report.txt', user_name, portfolio_list, cur_profit, status_msg)
+
+        #종료 조건
+
+        if danger_flag :
+            print('=== 최대 손실 한도를 초과하여 스탑로스가 발동되었습니다. ===')
+            print(' 자산 보호를 위해 프로그램을 안전하게 강제 종료합니다.')
+            print('='*55)
             break
+        else:
+            retry = input('다시 포트폴리오를 구성하시겠습니까? (y/n): ')
+            if retry.lower() != 'y' :
+                print('프로그램을 정상 종료합니다.')
+                break
+
+
+            
 
 
 
